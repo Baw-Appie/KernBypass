@@ -1,4 +1,4 @@
-ARCHS = arm64
+ARCHS = arm64 arm64e
 
 include $(THEOS)/makefiles/common.mk
 
@@ -17,7 +17,9 @@ ifdef USE_JELBREK_LIB
 	changerootfs_LDFLAGS = $(LIB_DIR)/jelbrekLib.dylib
 endif
 
+include $(THEOS)/makefiles/common.mk
 include $(THEOS_MAKE_PATH)/tool.mk
+include $(THEOS_MAKE_PATH)/aggregate.mk
 
 ifdef USE_JELBREK_LIB
 before-package::
@@ -27,8 +29,22 @@ endif
 before-package::
 	mkdir -p $(THEOS_STAGING_DIR)/usr/lib/
 	cp $(LIB_DIR)/jelbrekLib.dylib $(THEOS_STAGING_DIR)/usr/lib
-	$(THEOS)/toolchain/linux/iphone/bin/ldid -S./ent.plist $(THEOS_STAGING_DIR)/usr/bin/changerootfs
-	$(THEOS)/toolchain/linux/iphone/bin/ldid -S./ent.plist $(THEOS_STAGING_DIR)/usr/bin/preparerootfs	
+	ldid -S./ent.plist $(THEOS_STAGING_DIR)/usr/bin/changerootfs
+	ldid -S./ent.plist $(THEOS_STAGING_DIR)/usr/bin/preparerootfs	
+	ldid -S./ent.plist $(THEOS_STAGING_DIR)/usr/bin/changerootfs
+	sudo chown -R root:wheel $(THEOS_STAGING_DIR)
+	sudo chmod -R 755 $(THEOS_STAGING_DIR)
+	sudo chmod 6755 $(THEOS_STAGING_DIR)/usr/bin/kernbypassd
+	sudo chmod 666 $(THEOS_STAGING_DIR)/DEBIAN/control
+    
 
 SUBPROJECTS += zzzzzzzzznotifychroot
+SUBPROJECTS += kernbypassd
 include $(THEOS_MAKE_PATH)/aggregate.mk
+
+after-package::
+	make clean
+	sudo rm -rf .theos/_
+
+after-install::
+	install.exec "killall backboardd"
