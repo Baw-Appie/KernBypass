@@ -8,6 +8,8 @@
 	<true/>
 	<key>com.apple.private.apfs.revert-to-snapshot</key>
 	<true/>
+	<key>com.apple.private.diskimages.kext.user-client-access</key>
+	<true/>
 	<key>get-task-allow</key>
 	<true/>
 	<key>proc_info-allow</key>

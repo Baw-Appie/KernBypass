@@ -12,6 +12,8 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
+@import Darwin.POSIX.spawn;
+
 
 void hardlink_var(const char *path) {
     char src[1024];
@@ -48,16 +50,30 @@ void listdir(const char *name, int indent)
         }
     }
     if (childs == 0) {
-	if (indent == 0) {
-	    printf("FATAL! Empty fakevar root!!\n");
-	    return;	
-	}
+    if (indent == 0) {
+        printf("FATAL! Empty fakevar root!!\n");
+        return; 
+    }
         hardlink_var(name);
     }
     closedir(dir);
 }
 
 #ifndef USE_DEV_FAKEVAR
+
+void run_cmd(char *cmd)
+{
+    pid_t pid;
+    char *argv[] = {"sh", "-c", cmd, NULL};
+    int status;
+    
+    status = posix_spawn(&pid, "/bin/sh", NULL, NULL, argv, NULL);
+    if (status == 0) {
+        if (waitpid(pid, &status, 0) == -1) {
+            perror("waitpid");
+        }
+    }
+}
 
 int mount_dmg(const char *mountpoint) {
     printf("attaching our fakevar dmg %s\n", FAKEVAR_DMG);
@@ -66,6 +82,7 @@ int mount_dmg(const char *mountpoint) {
     char buf[100] = {0};
     size_t ret = fread(buf, 1, sizeof(buf) - 1, fp);
     if (ret <= 0) {
+        printf("attach "FAKEVAR_DMG);
         printf("failed to attach dmg!\n");
         return 1;
     }
@@ -109,19 +126,21 @@ int mount_dmg(const char *mountpoint) {
     char command[1000] = { 0 };
     snprintf(command, sizeof(command), "fsck_hfs /dev/%s", diskpath);
     printf("Executing command: %s\n", command);
-    err = system(command);
-    if (err != 0) {
-        printf("fsck fakevar dmg failed!!\n");
-	    return 1;
-    }
+    run_cmd(command);
+    // err = system(command);
+    // if (err != 0) {
+    //     printf("fsck fakevar dmg failed!!\n");
+    //     return 1;
+    // }
     //snprintf(command, sizeof(command), "mount -t hfs /dev/%s %s", diskpath, FAKEROOTDIR"/private/var");
     snprintf(command, sizeof(command), "mount -t hfs /dev/%s %s", diskpath, mountpoint);
     printf("Executing command: %s\n", command);
-    err = system(command);
-    if(err != 0){
-        printf("mount devfs error = %d\n", err);
-        return 1;
-    }
+    run_cmd(command);
+    // err = system(command);
+    // if(err != 0){
+    //     printf("mount devfs error = %d\n", err);
+    //     return 1;
+    // }
     
     return 0;
 }

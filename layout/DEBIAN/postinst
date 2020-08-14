@@ -10,6 +10,18 @@ if ! [ -d /var/MobileSoftwareUpdate/mnt1 ]; then
  echo "/var/MobileSoftwareUpdate/mnt1 FOLDER CREATED SUCCESS"
 fi
 
+if ! [ -f /var/mobile/test.dmg ]; then
+ echo "/var/mobile/test.dmg FILE NOT FOUND"
+
+ echo "DOWNLOADING FILE... (100MB)"
+ curl -L https://github.com/Baw-Appie/KernBypass/raw/master/AnalysisResults/test.dmg > /var/mobile/test.dmg
+ echo "DONE!"
+fi
+
+/usr/bin/preparerootfs
+
+echo "/usr/bin/preparerootfs"
+
 /usr/bin/changerootfs &
 
 echo "/usr/bin/changerootfs &"

@@ -50,7 +50,7 @@ void receive_notify_chrooter(CFNotificationCenterRef center,
     
     NSDictionary* info = (__bridge NSDictionary*)userInfo;
     
-    NSLog(@"receive notify %@", info);
+    HBLogError(@"[KernBypass] Receive chroot request %@", info);
     
     pid_t pid = [info[@"Pid"] intValue];
     
@@ -108,7 +108,7 @@ int main(int argc, char *argv[], char *envp[]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-function-declaration"
         
-        
+    HBLogInfo(@"[KernBypass] Setup Notification Observer");
     CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(), NULL, receive_notify_chrooter, (__bridge CFStringRef)@"jp.akusio.chrooter", NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
         
         	

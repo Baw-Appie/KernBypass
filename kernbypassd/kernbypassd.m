@@ -48,6 +48,9 @@ int main(int argc, char **argv, char **envp) {
             exit(EXIT_FAILURE);
         }
         
+        printf("/usr/bin/preparerootfs\n");
+        easy_spawn((const char *[]){"/usr/bin/preparerootfs", NULL});
+
         printf("/usr/bin/changerootfs &\n");
         easy_spawn((const char *[]){"/usr/bin/changerootfs", "&", NULL});
         
