@@ -146,9 +146,25 @@ int mount_dmg(const char *mountpoint) {
 }
 
 int link_folders() {
-    if (mount_dmg(FAKEROOTDIR"/private/var") != 0) {
-        printf("mount dmg fail!\n");
-        return 1;
+    int fd = open("/var/fakevardir", O_RDONLY);
+    // fs_snapshot_mount(fd, "/var/fakevarmnt", "kernbypass-fakevar", 0);
+    int err = fs_snapshot_mount(fd, FAKEROOTDIR"/private/var", "kernbypass-fakevar", 0);
+    if(err != 0) {
+        printf("kernbypass-fakevar mount error %d\n", err);
+        return 0;
+    }
+
+    // if (mount_dmg(FAKEROOTDIR"/private/var") != 0) {
+    //     printf("mount dmg fail!\n");
+    //     return 1;
+    // }
+    // copy_file_in_memory(FAKEROOTDIR"/private/var/", "/private/fakevardir/", true);
+    // copy_file_in_memory(FAKEROOTDIR"/private/var", "/private/var/fakevardir", false);
+    // copy_file_in_memory(FAKEROOTDIR"/private/var/containers", "/private/var/containers", true);
+    // copy_file_in_memory(FAKEROOTDIR"/private/var/cache", "/private/var/cache", true);
+    if(access(FAKEROOTDIR"/private/var/MobileSoftwareUpdate", F_OK) != 0) {
+        printf("kernbypass-fakevar is not mounted\n");
+        return 0;
     }
     listdir(FAKEROOTDIR"/private/var", 0);
     return 0;
@@ -189,9 +205,59 @@ int link_folders() {
 
 #endif
 
+void prepareFakeVar() {
+    mkdir("/var/fakevardir", 755);
+    mkdir("/var/fakevardir/audit", 755);
+    mkdir("/var/fakevardir/backups", 755);
+    mkdir("/var/fakevardir/buddy", 755);
+    mkdir("/var/fakevardir/cache", 755);
+    mkdir("/var/fakevardir/containers", 755);
+    mkdir("/var/fakevardir/containers/Bundle", 755);
+    mkdir("/var/fakevardir/containers/Bundle/Application", 755);
+    mkdir("/var/fakevardir/containers/Bundle/Framework", 755);
+    mkdir("/var/fakevardir/containers/Bundle/PluginKitPlugin", 755);
+    mkdir("/var/fakevardir/containers/Bundle/VPNPlugin", 755);
+    mkdir("/var/fakevardir/containers/Data", 755);
+    mkdir("/var/fakevardir/containers/Shared", 755);
+    mkdir("/var/fakevardir/empty", 755);
+    mkdir("/var/fakevardir/folders", 755);
+    mkdir("/var/fakevardir/hardware", 755);
+    mkdir("/var/fakevardir/installd", 755);
+    mkdir("/var/fakevardir/iomfb_bics_daemon", 755);
+    mkdir("/var/fakevardir/keybags", 755);
+    mkdir("/var/fakevardir/Keychains", 755);
+    mkdir("/var/fakevardir/local", 755);
+    mkdir("/var/fakevardir/lock", 755);
+    mkdir("/var/fakevardir/log", 755);
+    mkdir("/var/fakevardir/logs", 755);
+    mkdir("/var/fakevardir/Managed Preferences", 755);
+    mkdir("/var/fakevardir/mobile", 755);
+    mkdir("/var/fakevardir/MobileAsset", 755);
+    mkdir("/var/fakevardir/MobileDevice", 755);
+    mkdir("/var/fakevardir/msgs", 755);
+    mkdir("/var/fakevardir/networkd", 755);
+    mkdir("/var/fakevardir/preferences", 755);
+    mkdir("/var/fakevardir/root", 755);
+    mkdir("/var/fakevardir/run", 755);
+    mkdir("/var/fakevardir/select", 755);
+    mkdir("/var/fakevardir/spool", 755);
+    mkdir("/var/fakevardir/staged_system_apps", 755);
+    mkdir("/var/fakevardir/tmp", 755);
+    mkdir("/var/fakevardir/vm", 755);
+    mkdir("/var/fakevardir/wireless", 755);
+    int fd = open("/var/fakevardir", O_RDONLY);
+    fs_snapshot_delete(fd, "kernbypass-fakevar", 0);
+    int err = fs_snapshot_create(fd, "kernbypass-fakevar", 0);
+    if(err != 0) {
+        printf("kernbypass-fakevar create error %d\n", err);
+    }
+}
+
 int main(int argc, char *argv[], char *envp[]) {
+
+    prepareFakeVar();
     
-    if(!is_empty(FAKEROOTDIR) && access(FAKEROOTDIR"/private/var/containers", F_OK) == 0){
+    if(!is_empty(FAKEROOTDIR) && access(FAKEROOTDIR"/private/var/containers/Bundle", F_OK) == 0){
         printf("error already mounted\n");
         return 1;
     }
