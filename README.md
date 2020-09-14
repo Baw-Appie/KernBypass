@@ -12,6 +12,10 @@ kernel level jailbreak detection bypass
 - jelbrekLib by @Jakeashacks
 - Translated by sohsatoh
 - iOS12 support by dora2-iOS
+- Notify from SpringBoard by level3tjg
+- Kernbypassd by ichitaso
+- Fakevar by NyaMisty
+- Merge 3 KernBypass to one by @BawAppie
 
 
 ## WARNING
@@ -19,12 +23,10 @@ kernel level jailbreak detection bypass
 
 ## Getting Started
 ### Installation
-1. [download](https://github.com/akusio/KernBypass-Public/releases/download/0.0.1/jp.akusio.kernbypass_0.0.1_iphoneos-arm.deb) and install the deb file.
+1. [download](https://github.com/Baw-Appie/KernBypass/releases/) and install the deb file.
 ### Setting up KernBypass
-1. In terminal, run `su` and type your password.
-2. Run `changerootfs &` (don't forget "&").
-3. Run `disown %1`
-4. Done. The changerootfs is now a daemon.
+1. Respring.
+2. Done!
 
 ### Selecting apps to bypass
 1. After installing changerootfs, open Preferences > KernBypass, then select the applications to be enabled the bypass.
