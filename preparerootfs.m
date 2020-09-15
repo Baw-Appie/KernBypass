@@ -25,8 +25,7 @@ void hardlink_var(const char *path) {
     copy_file_in_memory((char *)path, src, true);
 }
 
-void listdir(const char *name, int indent)
-{
+void listdir(const char *name, int indent) {
     DIR *dir;
     struct dirent *entry;
 
@@ -73,6 +72,12 @@ void run_cmd(char *cmd)
             perror("waitpid");
         }
     }
+}
+static void easy_spawn(const char* args[]) {
+    pid_t pid;
+    int status;
+    posix_spawn(&pid, args[0], NULL, NULL, (char* const*)args, NULL);
+    waitpid(pid, &status, WEXITED);
 }
 
 int mount_dmg(const char *mountpoint) {
@@ -146,9 +151,9 @@ int mount_dmg(const char *mountpoint) {
 }
 
 int link_folders() {
-    int fd = open("/var/fakevardir", O_RDONLY);
+    int fd = open("/var/", O_RDONLY);
     // fs_snapshot_mount(fd, "/var/fakevarmnt", "kernbypass-fakevar", 0);
-    int err = fs_snapshot_mount(fd, FAKEROOTDIR"/private/var", "kernbypass-fakevar", 0);
+    int err = fs_snapshot_mount(fd, "/var/fakevarmnt", "kernbypass-fakevar", 0);
     if(err != 0) {
         printf("kernbypass-fakevar mount error %d\n", err);
         return 0;
@@ -159,13 +164,9 @@ int link_folders() {
     //     return 1;
     // }
     // copy_file_in_memory(FAKEROOTDIR"/private/var/", "/private/fakevardir/", true);
-    // copy_file_in_memory(FAKEROOTDIR"/private/var", "/private/var/fakevardir", false);
+    copy_file_in_memory(FAKEROOTDIR"/private/var", "/var/fakevarmnt/fakevardir", true);
     // copy_file_in_memory(FAKEROOTDIR"/private/var/containers", "/private/var/containers", true);
     // copy_file_in_memory(FAKEROOTDIR"/private/var/cache", "/private/var/cache", true);
-    if(access(FAKEROOTDIR"/private/var/MobileSoftwareUpdate", F_OK) != 0) {
-        printf("kernbypass-fakevar is not mounted\n");
-        return 0;
-    }
     listdir(FAKEROOTDIR"/private/var", 0);
     return 0;
 }
@@ -206,6 +207,7 @@ int link_folders() {
 #endif
 
 void prepareFakeVar() {
+    mkdir("/var/fakevarmnt", 755);
     mkdir("/var/fakevardir", 755);
     mkdir("/var/fakevardir/audit", 755);
     mkdir("/var/fakevardir/backups", 755);
@@ -245,11 +247,18 @@ void prepareFakeVar() {
     mkdir("/var/fakevardir/tmp", 755);
     mkdir("/var/fakevardir/vm", 755);
     mkdir("/var/fakevardir/wireless", 755);
-    int fd = open("/var/fakevardir", O_RDONLY);
-    fs_snapshot_delete(fd, "kernbypass-fakevar", 0);
-    int err = fs_snapshot_create(fd, "kernbypass-fakevar", 0);
-    if(err != 0) {
-        printf("kernbypass-fakevar create error %d\n", err);
+    int fd = open("/var/", O_RDONLY);
+
+    // if(!is_empty("/var/fakevarmnt")) {
+    //     easy_spawn((const char *[]){"/sbin/umount", "-f", "/var/fakevarmnt", NULL});
+    // }
+    int err1 = fs_snapshot_delete(fd, "kernbypass-fakevar", 0);
+    if(err1 != 0) {
+        printf("kernbypass-fakevar delete error %d\n", err1);
+    }
+    int err2 = fs_snapshot_create(fd, "kernbypass-fakevar", 0);
+    if(err2 != 0) {
+        printf("kernbypass-fakevar create error %d\n", err2);
     }
 }
 

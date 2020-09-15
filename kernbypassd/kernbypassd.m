@@ -50,6 +50,8 @@ int main(int argc, char **argv, char **envp) {
         
         printf("/usr/bin/preparerootfs\n");
         easy_spawn((const char *[]){"/usr/bin/preparerootfs", NULL});
+        
+        sleep(3);
 
         printf("/usr/bin/changerootfs &\n");
         easy_spawn((const char *[]){"/usr/bin/changerootfs", "&", NULL});
