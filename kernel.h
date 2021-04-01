@@ -381,6 +381,18 @@ static uint32_t off_vnode_usecount = 0;
 #define kCFCoreFoundationVersionNumber_iOS_13_0_b1 (1652.20)
 
 int offset_init() {
+    
+    if(kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_14_0_b1){
+        // ios 14
+        off_p_pid = 0x68;
+        off_p_pfd = 0xf8;
+        off_fd_rdir = 0x40;
+        off_fd_cdir = 0x38;
+        off_vnode_iocount = 0x64;
+        off_vnode_usecount = 0x60;
+        return 0;
+    }
+    
     if(kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_13_0_b2){
         // ios 13
         off_p_pid = 0x68;
